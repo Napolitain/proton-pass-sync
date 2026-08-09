@@ -29,7 +29,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Install integration-test tools (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install --yes gnupg password-store
+        run: sudo apt-get update && sudo apt-get install --yes gnupg pass
       - name: Install integration-test tools (macOS)
         if: runner.os == 'macOS'
         run: brew install gnupg pass
