@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "id": "fixture-item-custom-225",
+      "share_id": "fixture-share",
+      "vault_id": "fixture-vault",
+      "state": "Active",
+      "flags": [],
+      "create_time": "2026-07-10T09:08:07",
+      "modify_time": "2026-07-11T10:09:08",
+      "title": "release-bot",
+      "item_type": "custom"
+    }
+  ]
+}

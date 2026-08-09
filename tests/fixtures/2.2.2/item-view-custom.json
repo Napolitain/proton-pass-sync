@@ -1,0 +1,58 @@
+{
+  "item": {
+    "id": "fixture-item-custom-222",
+    "share_id": "fixture-share",
+    "vault_id": "fixture-vault",
+    "content": {
+      "title": "compiler-service",
+      "note": "fixture note is intentionally ignored",
+      "item_uuid": "fixture-uuid-custom-222",
+      "content": {
+        "Custom": {
+          "sections": [
+            {
+              "section_name": "production",
+              "section_fields": [
+                {
+                  "name": "token",
+                  "content": { "Hidden": "fixture-hidden-value-alpha" }
+                },
+                {
+                  "name": "endpoint",
+                  "content": { "Text": "https://fixture.invalid/api" }
+                },
+                {
+                  "name": "empty",
+                  "content": { "Text": "" }
+                },
+                {
+                  "name": "one-time-code",
+                  "content": { "Totp": "otpauth://totp/fixture.invalid/test?secret=AAAA" }
+                },
+                {
+                  "name": "rotation-date",
+                  "content": { "Timestamp": 1767225600 }
+                }
+              ]
+            },
+            {
+              "section_name": "staging",
+              "section_fields": [
+                {
+                  "name": "token",
+                  "content": { "Hidden": "fixture-hidden-value-beta" }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "extra_fields": []
+    },
+    "state": "Active",
+    "flags": [],
+    "create_time": "2026-01-01T00:00:00",
+    "modify_time": "2026-01-02T03:04:05"
+  },
+  "attachments": []
+}

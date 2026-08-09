@@ -1,0 +1,38 @@
+{
+  "item": {
+    "id": "fixture-item-custom-225",
+    "share_id": "fixture-share",
+    "vault_id": "fixture-vault",
+    "content": {
+      "title": "release-bot",
+      "note": "",
+      "item_uuid": "fixture-uuid-custom-225",
+      "content": {
+        "Custom": {
+          "sections": [
+            {
+              "section_name": "registry",
+              "section_fields": [
+                {
+                  "name": "username",
+                  "content": { "Text": "fixture-user" }
+                },
+                {
+                  "name": "credential",
+                  "content": { "Hidden": "fixture-hidden-value-gamma" }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "extra_fields": [],
+      "platform_specific": null
+    },
+    "state": "Active",
+    "flags": [],
+    "create_time": "2026-07-10T09:08:07",
+    "modify_time": "2026-07-11T10:09:08"
+  },
+  "attachments": []
+}

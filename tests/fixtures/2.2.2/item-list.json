@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "id": "fixture-item-custom-222",
+      "share_id": "fixture-share",
+      "vault_id": "fixture-vault",
+      "state": "Active",
+      "flags": [],
+      "create_time": "2026-01-01T00:00:00",
+      "modify_time": "2026-01-02T03:04:05",
+      "title": "compiler-service",
+      "item_type": "custom"
+    }
+  ]
+}
