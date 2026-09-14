@@ -40,6 +40,9 @@
           inherit proton-pass-sync;
           default = proton-pass-sync;
         }
+        // nixpkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+          proton-pass-system-provision = import ./nix/provision.nix { inherit pkgs; };
+        }
       );
 
       apps = forAllSystems (system: {
@@ -66,7 +69,16 @@
             package = self.packages.${system}.proton-pass-sync;
           };
         }
+        // nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
+          system-isolation = import ./nix/tests/system.nix {
+            inherit pkgs;
+            module = self.nixosModules.default;
+            package = self.packages.${system}.default;
+          };
+        }
       );
+
+      nixosModules.default = import ./nix/nixos.nix { inherit self; };
 
       homeManagerModules = {
         proton-pass-sync = import ./nix/home-manager.nix { inherit self; };

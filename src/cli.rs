@@ -8,12 +8,30 @@ pub struct Cli {
     #[arg(long, global = true, value_name = "PATH")]
     pub config: Option<PathBuf>,
 
+    /// Override the private transaction state directory.
+    #[arg(long, global = true, value_name = "PATH")]
+    pub state_dir: Option<PathBuf>,
+
     #[command(subcommand)]
     pub command: Command,
 }
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    /// Publish a complete ciphertext-only snapshot from a private mirror.
+    ExportCiphertext {
+        #[arg(long)]
+        output: PathBuf,
+    },
+    /// Install ciphertext without contacting Proton or invoking GPG.
+    ImportCiphertext {
+        #[arg(long)]
+        input: PathBuf,
+        #[arg(long)]
+        dry_run: bool,
+        #[arg(long)]
+        accept_remote: Vec<String>,
+    },
     /// Verify the Proton session and local password-store prerequisites.
     Doctor,
     /// Synchronize active Proton custom fields into GNU pass.

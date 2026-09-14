@@ -31,6 +31,27 @@ open a public issue containing only a request for a private contact channel.
 
 ## Security boundaries
 
+The optional NixOS system module introduces a separate UID boundary. PID 1
+loads a root-owned, system-scoped encrypted PAT into a DynamicUser producer.
+The authentication wrapper passes it only to the login child, then the sync
+engine runs against an isolated session and public-key-only private mirror.
+All executable paths, configuration, and GPG recipient material are controlled
+by the administrator. The producer never reads the desktop home. Its complete
+ciphertext snapshot is the only data transferred to the desktop delivery unit,
+which has neither credentials nor network access.
+
+This protects the master token from unprivileged desktop processes, not root,
+Nix trusted users, compromised provisioning, or processes using already-granted
+administrative authorization. Downstream entries intentionally delivered to
+GNU pass remain available to processes that can use the recipient's GPG agent.
+The PAT should therefore be scoped to the minimum viewer vault regardless.
+Systemd credential memory protection does not cover every later copy made by
+the CLI: no core dumps are allowed, but this is not a general guarantee against
+swap, hibernation, or physical attacks. TPM boot-state binding is a separate
+policy; the provisioning helper does not change boot configuration.
+
+The following describe the existing synchronizer and Home Manager mode:
+
 - The tool reuses an existing `pass-cli` session. It does not create, accept,
   persist, renew, or print a Proton personal access token.
 - Proton Pass is authoritative. The GNU pass store is an encrypted offline

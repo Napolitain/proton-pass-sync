@@ -102,7 +102,7 @@ let
     else
       builtins.elem externalConfigPath external.config.launchd.agents.proton-pass-sync.config.ProgramArguments;
 
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 in
 assert disabledIsInert;
 assert lib.assertMsg generatedProgramsAreEnabled

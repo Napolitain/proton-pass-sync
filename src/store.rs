@@ -29,6 +29,29 @@ pub struct StagingArea<'a> {
 }
 
 impl<'a> StagingArea<'a> {
+    /// Stage already encrypted bytes. No recipient lookup or subprocess occurs.
+    pub fn stage_ciphertext(&self, path: &str, bytes: &[u8]) -> Result<StagedCiphertext> {
+        let path = validate_pass_path(path)?;
+        let root = self
+            .directory
+            .as_ref()
+            .context("staging already committed")?
+            .path();
+        let source = ciphertext_path(root, &path)?;
+        let parent = source.parent().context("missing ciphertext parent")?;
+        fs::create_dir_all(parent)?;
+        fs::write(&source, bytes)?;
+        fs::set_permissions(&source, fs::Permissions::from_mode(0o600))?;
+        fs::File::open(&source)?.sync_all()?;
+        sync_directory(parent)?;
+        let sha256 = hash_file(&source)?;
+        Ok(StagedCiphertext {
+            path,
+            source,
+            sha256,
+        })
+    }
+
     pub fn new(config: &'a Config) -> Result<Self> {
         let directory = Builder::new()
             .prefix(".proton-pass-sync-stage-")

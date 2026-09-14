@@ -1,5 +1,100 @@
 # proton-pass-sync
 
+## Isolated NixOS system mode
+
+The development branch additionally exports `nixosModules.default`. This mode
+keeps the Proton master token out of the desktop user's trust domain:
+
+```text
+root-owned encrypted credential -> DynamicUser producer -> ciphertext snapshot
+                                                        -> desktop UID importer -> pass
+```
+
+Import that module and configure an explicit recipient:
+
+```nix
+{
+  imports = [ inputs.proton-pass-sync.nixosModules.default ];
+  services.proton-pass-sync-system = {
+    enable = true;
+    recipient = "alice";
+  };
+}
+```
+
+The recipient must be an ordinary, non-Nix-trusted user. Password-protected sudo
+can remain available; Nix trusted-user access is a separate root-equivalent
+privilege. The system-mode default CLI is pinned to Proton's x86_64 Linux 2.3.3
+binary with a verified hash. Other Linux architectures require an explicit
+`protonCliPackage`. No program from the recipient's writable home is executed
+by the producer.
+
+Initialize the recipient's existing GNU pass store normally. From a trusted
+administrative context, export **only the public** GPG key and independently
+verify its full fingerprint. Build the provisioning helper:
+
+```console
+nix build .#proton-pass-system-provision
+sudo ./result/bin/proton-pass-system-provision /path/to/public.asc FINGERPRINT VAULT_SHARE_ID
+```
+
+The helper prompts for a dedicated expiring Proton PAT with viewer access to
+only the desired custom-item vault. It stores a system-scoped encrypted
+credential at `/etc/credstore.encrypted/proton-token`, and root-controlled public
+recipient metadata under `/etc/proton-pass-sync`. It refuses existing state;
+rotation is an explicit administrator action. Never supply the token as an
+argument, environment variable in your desktop shell, or Nix option.
+`--with-key=auto` uses systemd's available host/TPM protection; it does not
+promise TPM availability or a measured-boot policy. This needs no bootloader
+changes. Provisioning does not start or activate any service.
+
+Once the NixOS configuration is activated, stop the timer for the first manual
+trial and use a disposable custom item with fake values:
+
+```console
+sudo systemctl stop proton-pass-schedule.timer
+sudo systemctl start proton-pass-producer.service
+sudo systemctl start proton-pass-delivery.service
+pass show item/section/field
+sudo systemctl start proton-pass-schedule.timer
+```
+
+The scheduler polls logind once per minute, runs after a new human login and
+then hourly, and excludes manager, greeter, background, and closing sessions.
+A new login allows a new attempt; otherwise failures retry hourly. A run
+already in progress may finish after logout. The timer is system-owned and
+does not require permission for the desktop account to control system units.
+Missing provisioning fails closed and leaves existing entries untouched.
+
+The producer encrypts in `/var/lib/private/proton-pass-sync`, using a fresh
+runtime Proton session and public-only GPG home. Session files are removed on
+exit. Only one complete ciphertext snapshot and non-secret vault metadata are
+bound read-only into `proton-pass-delivery.service`, which runs as the recipient
+without a Proton credential or network. Delivery writes the existing pass
+store and keeps its own transaction state in `/var/lib/proton-pass-delivery`.
+It never calls Proton, GNU pass, or GPG; ordinary `pass show` decrypts afterward.
+
+`export-ciphertext --output PATH` and `import-ciphertext --input PATH` use the
+normal metadata-only `--config` file and optional `--state-dir PATH`. Snapshots
+are complete, versioned, bounded to 64 MiB, and contain only ciphertext and
+source metadata. Export's parent must be private: the snapshot itself is mode
+0644 so PID 1 can expose just that file to the recipient. Never bind the whole
+producer state directory. Import supports `--dry-run` and exact per-path
+`--accept-remote`; no scheduled job accepts conflicts automatically. Consumer
+pruning is deliberately unsupported. Source disappearance retains old entries,
+and a missed delivery is repaired by the next complete snapshot.
+
+Recipient-key changes fail rather than silently mixing recipients. An
+administrator must plan re-encryption and retain old private keys for historical
+ciphertext. To roll back, stop the scheduler and revert the NixOS configuration;
+the encrypted stores are retained for explicit cleanup.
+
+System-mode VM checks use fake credentials and public-key-only producer
+encryption. Live Proton access, actual TPM binding, and a user's private
+credential provisioning require separate runtime verification.
+
+## Existing session / Home Manager mode
+
 `proton-pass-sync` creates an encrypted, offline GNU pass mirror of selected
 Proton Pass data. Proton Pass remains authoritative; the mirror makes already
 synchronized values available through `pass` when Proton or the network is
