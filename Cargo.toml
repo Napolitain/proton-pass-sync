@@ -25,7 +25,7 @@ indexmap = "=2.11.4"
 unicode-normalization = "0.1"
 wait-timeout = "0.2"
 walkdir = "2.5"
-zeroize = { version = "=1.8.1", features = ["derive"] }
+zeroize = { version = "=1.8.2", features = ["derive"] }
 # Keep zeroize's otherwise-loose proc-macro range compatible with Rust 1.80.
 zeroize_derive = "=1.4.2"
 
